@@ -30,7 +30,7 @@ void cluster_dma_calc(void *arg)
     uint32_t coreid = pi_core_id(), start = 0, end = 0;
 
     /* alloc a buffer for add and multiply calculation results */
-	/* result location: L1_result[0 <= add result < BUFFER_SIZE <= multiply result < (BUFFER_SIZE*2)] */
+    /* result location: L1_result[0 <= add result < BUFFER_SIZE <= multiply result < (BUFFER_SIZE*2)] */
     L1_result = (unsigned short *) pmsis_l1_malloc((uint32_t) BUFFER_SIZE*2); 
     if (L1_result == NULL)
     {
