@@ -26,7 +26,8 @@ void cluster_dma_calc(void *arg)
 	unsigned short *L1_result;
     uint32_t coreid = pi_core_id(), start = 0, end = 0;
 
-    L1_result = (unsigned short *) pmsis_l1_malloc((uint32_t) BUFFER_SIZE*2); /* a buffer for add and multiply */
+    /* alloc a buffer for add and multiply calculation results */
+	L1_result = (unsigned short *) pmsis_l1_malloc((uint32_t) BUFFER_SIZE*2); 
     if (L1_result == NULL)
     {
         printf("L1_result alloc failed !\n");
@@ -59,10 +60,10 @@ void cluster_dma_calc(void *arg)
     for (i=start; i<=end; i++)
     {
 		/* add two matrices */
-        L1_result[i] = (L1_buffer[i] + L1_buffer[BUFFER_SIZE+i]);
+        L1_result[i] = (L1_buffer[i] + L1_buffer[(uint32_t)BUFFER_SIZE+i]);
 		
 		/* multiply two matrices */
-        L1_result[BUFFER_SIZE+i] = (L1_buffer[i] * L1_buffer[BUFFER_SIZE+i]);
+        L1_result[(uint32_t)BUFFER_SIZE+i] = (L1_buffer[i] * L1_buffer[(uint32_t)BUFFER_SIZE+i]);
     }
 
     /* Barrier synchronisation to wait all cores. */
@@ -75,7 +76,7 @@ void cluster_dma_calc(void *arg)
         pi_cl_dma_copy_t copy;
         copy.dir = PI_CL_DMA_DIR_LOC2EXT;
         copy.merge = 0;
-        copy.size = (uint16_t) BUFFER_SIZE*4;
+        copy.size = (uint16_t) BUFFER_SIZE*2;
         copy.id = 0;
         copy.ext = (uint32_t)L2_result;
         copy.loc = (uint32_t)L1_result;
@@ -96,19 +97,20 @@ void master_entry(void *arg)
 
 void cluster_malloc_dma(void)
 {
-    uint32_t errors = 0;
+    uint32_t i;
+	uint32_t errors = 0;
     struct pi_device cluster_dev;
     struct pi_cluster_conf conf;
 	unsigned short *L1_buffer;
 
     /* L2 Array Init. for matrix A */
-    for (uint32_t i=0; i<(uint32_t) BUFFER_SIZE; i++)
+    for (i=0; i<(uint32_t) BUFFER_SIZE; i++)
     {
         L2_in[i] = 2;
         L2_result[i] = 0;
     }
 	/* L2 Array Init. for matrix B */
-    for (uint32_t i=BUFFER_SIZE; i<(uint32_t) (BUFFER_SIZE*2); i++)
+    for (i=(uint32_t)BUFFER_SIZE; i<(uint32_t) (BUFFER_SIZE*2); i++)
     {
         L2_in[i] = 3;
         L2_result[i] = 0;
