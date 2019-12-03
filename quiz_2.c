@@ -21,19 +21,19 @@ static unsigned short L2_result[BUFFER_SIZE*2]; /* to be stored calculation resu
 /* Task executed by cluster cores. */
 void cluster_dma_calc(void *arg)
 {
-	uint32_t i;
+    uint32_t i;
     unsigned short *L1_buffer = (unsigned short *) arg;
-	unsigned short *L1_result;
+    unsigned short *L1_result;
     uint32_t coreid = pi_core_id(), start = 0, end = 0;
 
     /* alloc a buffer for add and multiply calculation results */
-	L1_result = (unsigned short *) pmsis_l1_malloc((uint32_t) BUFFER_SIZE*2); 
+    L1_result = (unsigned short *) pmsis_l1_malloc((uint32_t) BUFFER_SIZE*2); 
     if (L1_result == NULL)
     {
         printf("L1_result alloc failed !\n");
         pmsis_exit(-2);
     }
-	
+    
     /* Core 0 of cluster initiates DMA transfer from L2 to L1. */
     if (!coreid)
     {
@@ -59,10 +59,10 @@ void cluster_dma_calc(void *arg)
     /* Each core computes on specific portion of buffer. */
     for (i=start; i<=end; i++)
     {
-		/* add two matrices */
+        /* add two matrices */
         L1_result[i] = (L1_buffer[i] + L1_buffer[(uint32_t)BUFFER_SIZE+i]);
-		
-		/* multiply two matrices */
+        
+        /* multiply two matrices */
         L1_result[(uint32_t)BUFFER_SIZE+i] = (L1_buffer[i] * L1_buffer[(uint32_t)BUFFER_SIZE+i]);
     }
 
@@ -85,7 +85,7 @@ void cluster_dma_calc(void *arg)
         pi_cl_dma_wait(&copy);
         printf("Core %d : Transfer done.\n", coreid);
     }
-	pmsis_l1_malloc_free(L1_result, (uint32_t) BUFFER_SIZE*2);
+    pmsis_l1_malloc_free(L1_result, (uint32_t) BUFFER_SIZE*2);
 }
 
 /* Cluster main entry, executed by core 0. */
@@ -98,10 +98,10 @@ void master_entry(void *arg)
 void cluster_malloc_dma(void)
 {
     uint32_t i;
-	uint32_t errors = 0;
+    uint32_t errors = 0;
     struct pi_device cluster_dev;
     struct pi_cluster_conf conf;
-	unsigned short *L1_buffer;
+    unsigned short *L1_buffer;
 
     /* L2 Array Init. for matrix A */
     for (i=0; i<(uint32_t) BUFFER_SIZE; i++)
@@ -109,7 +109,7 @@ void cluster_malloc_dma(void)
         L2_in[i] = 2;
         L2_result[i] = 0;
     }
-	/* L2 Array Init. for matrix B */
+    /* L2 Array Init. for matrix B */
     for (i=(uint32_t)BUFFER_SIZE; i<(uint32_t) (BUFFER_SIZE*2); i++)
     {
         L2_in[i] = 3;
@@ -169,6 +169,6 @@ void cluster_malloc_dma(void)
 int main(void)
 {
     printf("\n\n\t *** Two matrices calculation test efficiently"); 
-	printf(" using DMA for L1 and L2 memory ***\n\n");
+    printf(" using DMA for L1 and L2 memory ***\n\n");
     return pmsis_kickoff((void *) cluster_malloc_dma);
 }
