@@ -15,8 +15,11 @@ After all, send the result matrix from the L1 to the L2.
 /* Variables used. */
 #define BUFFER_SIZE      ( 64*64 )
 
-static unsigned short L2_in[BUFFER_SIZE*2]; /* two buffers; matrix_A + matrix_B */
-static unsigned short L2_result[BUFFER_SIZE*2]; /* to be stored calculation result plus and multiply calculation result respectively */
+/* two buffers; matrix_A + matrix_B */
+static unsigned short L2_in[BUFFER_SIZE*2]; 
+
+/* to be stored calculation result plus and multiply calculation result respectively */
+static unsigned short L2_result[BUFFER_SIZE*2]; 
 
 /* Task executed by cluster cores. */
 void cluster_dma_calc(void *arg)
@@ -27,6 +30,7 @@ void cluster_dma_calc(void *arg)
     uint32_t coreid = pi_core_id(), start = 0, end = 0;
 
     /* alloc a buffer for add and multiply calculation results */
+	/* result location: L1_result[0 <= add result < BUFFER_SIZE <= multiply result < (BUFFER_SIZE*2)] */
     L1_result = (unsigned short *) pmsis_l1_malloc((uint32_t) BUFFER_SIZE*2); 
     if (L1_result == NULL)
     {
